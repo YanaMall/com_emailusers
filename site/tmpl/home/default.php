@@ -4,7 +4,7 @@
      use Joomla\CMS\Language\Text;
 
      /**
-      * @package     Joomla.Administrator
+      * @package     Joomla.Site
       * @subpackage  com_emailusers
       *
       * @copyright   Copyright (C) 2022 Ayiana Mallory. All rights reserved.

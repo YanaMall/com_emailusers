@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <extension type="component" method="upgrade">
- <name>Report email notification</name>
+ <name>Email Users</name>
 
  <creationDate>July 2022</creationDate>
  <author>Ayiana Mallory</author>
