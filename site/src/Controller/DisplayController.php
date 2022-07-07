@@ -22,15 +22,15 @@ use Joomla\CMS\Factory;
 class DisplayController extends BaseController {
     public function display($cachable = false, $urlparams = array()) {        
         $document = Factory::getDocument();
-        //$document->setTitle('Email Notifications');
-        //$app = Factory::getApplication();
-        //$menu = $app->getMenu();
-        //$items = $menu->getMenu();
-        //foreach ($items as $item) {
-        //    if($item->title == 'Email Notifications') {
-        //        $menu->setActive($item->id);
-        //    }
-        //}
+        $document->setTitle('Email Notifications');
+        $app = Factory::getApplication();
+        $menu = $app->getMenu();
+        $items = $menu->getMenu();
+        foreach ($items as $item) {
+            if($item->title == 'Email Notifications') {
+                $menu->setActive($item->id);
+            }
+        }
         $viewName = $this->input->getCmd('view', 'login');
         $viewFormat = $document->getType();
         $view = $this->getView($viewName, $viewFormat);
