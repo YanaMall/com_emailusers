@@ -1,7 +1,4 @@
 <?php
-
-use Joomla\CMS\Language\Text;
-
 /**
  * @package     Joomla.Administrator
  * @subpackage  com_emailusers
@@ -13,4 +10,3 @@ use Joomla\CMS\Language\Text;
  // No direct access to this file
 defined('_JEXEC') or die('Restricted Access');
 ?>
-<h2>Mass email students (Hello World)</h2>
