@@ -25,6 +25,8 @@
      $allStudentIDs = $access->getUsersByGroup($group_id);
 
      $reportStudentIDs = [];
+     $noReportStudentIDs = [];
+     //Something wrong with the noReportStudentIDs array?
      foreach ($allStudentIDs as $id)
      {
           //trying to query the id from reports
@@ -33,8 +35,12 @@
                $user = JFactory::getUser($id);
                array_push($reportStudentIDs, $user);
           }
+          else
+          {
+               $user = JFactory::getUser($id);
+               array_push($noReportStudentIDs, $user);
+          }
      }
-     $noReportStudentIDs = array_diff($allStudentIDs, $reportStudentIDs);
 
      $rows = '';
      foreach ($noReportStudentIDs as $id)
@@ -45,30 +51,24 @@
           $rows .= '<td>' . $user->get('email') . '</td>';
           $rows .= '</tr>';
      }
+     //no names showing in the table
 
-     function sendEmails()
+     if(isset($_POST['button_pressed']))
      {
-          $img = file_get_contents('download.jpg');
-          $imgdata = base64_encode($img);
-          $content = 'This email is from the UCF Programming Team. This is a reminder to send in you weekly report. <img src='data:image/x-icon;base64,$imgdata'/>';
+          $content = 'This email is from the UCF Programming Team. This is a reminder to send in you weekly report.';
           foreach ($noReportStudentIDs as $id) 
           {
                $user = JFactory::getUser($id);
                $to = $user->get('email');
-               mail($to, 'UCF Programming Team Report', $content);
+               $schedule->call(function () {
+                    mail($to, 'UCF Programming Team Report', $content);
+               })->cron('00 12 * * sat');
           }
           echo 'Email Sent.';
      }
-
-     if(isset($_POST['button_pressed']))
-     {
-          sendEmails();
-     }
      //scheduled for every Saturday at 12:00:00
-     schedule->call(sendEmails())->cron('00 12 * * sat');
+     //$schedule->call(sendEmails())->cron('00 12 * * sat');
 ?>
-
-//Getting the syntax error: unexpected 'data' (T_STRING) 
 
 <style>
     .section {
