@@ -13,16 +13,26 @@
 
      // No direct access to this file
      defined('_JEXEC') or die( 'Restricted access' );
+     
+     //Trying to pull from the 'reports' table
+     $db = JFactory::getDbo();
+     $query = $db->getQuery(true);
+     $query->select('*');
+     $query->from('reports');
 
-     $sendDate = date_create()->modify('Saturday this week')->format('Y-m-d');
      $group_id = 11;
      $access = new JAccess();
      $allStudentIDs = $access->getUsersByGroup($group_id);
 
      $reportStudentIDs = [];
-     foreach ($weekReports as $report)
+     foreach ($allStudentIDs as $id)
      {
-          array_push($reportStudentIDs, $report[1]);
+          //trying to query the id from reports
+          if ($query->from('reports')->where("id = '$id'"))
+          {
+               $user = JFactory::getUser($id);
+               array_push($reportStudentIDs, $user);
+          }
      }
      $noReportStudentIDs = array_diff($allStudentIDs, $reportStudentIDs);
 
@@ -36,19 +46,29 @@
           $rows .= '</tr>';
      }
 
-     if(isset($_POST['button_pressed']))
+     function sendEmails()
      {
-          $content = 'This email is to remind you to send in you weekly report.';
+          $img = file_get_contents('download.jpg');
+          $imgdata = base64_encode($img);
+          $content = 'This email is from the UCF Programming Team. This is a reminder to send in you weekly report. <img src='data:image/x-icon;base64,$imgdata'/>';
           foreach ($noReportStudentIDs as $id) 
           {
                $user = JFactory::getUser($id);
                $to = $user->get('email');
-               mail($to, 'Programming Team Report', $content);
+               mail($to, 'UCF Programming Team Report', $content);
           }
-
           echo 'Email Sent.';
      }
+
+     if(isset($_POST['button_pressed']))
+     {
+          sendEmails();
+     }
+     //scheduled for every Saturday at 12:00:00
+     schedule->call(sendEmails())->cron('00 12 * * sat');
 ?>
+
+//Getting the syntax error: unexpected 'data' (T_STRING) 
 
 <style>
     .section {
