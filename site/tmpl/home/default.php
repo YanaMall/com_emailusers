@@ -14,38 +14,36 @@
      // No direct access to this file
      defined('_JEXEC') or die( 'Restricted access' );
      
+     $weekStart = date_create()->modify('this Monday')->format('Y-m-d');
      //Trying to pull from the 'reports' table
      $db = JFactory::getDbo();
      $query = $db->getQuery(true);
-     $query->select('*');
-     $query->from('reports');
+     $query->select(array('data', 'id'))->from('reports')->where("weekStart = '$weekStart'");
+     $db->setQuery($query);
+     $weekReports = $db->loadRowList();
 
-     $group_id = 11;
+	 // Get all student ids (Group 11)
+	$group_id = 11;
      $access = new JAccess();
-     $allStudentIDs = $access->getUsersByGroup($group_id);
+     $allStudentsIDs = $access->getUsersByGroup($group_id);
 
-     $reportStudentIDs = [];
-     $noReportStudentIDs = [];
-     //Something wrong with the noReportStudentIDs array?
-     foreach ($allStudentIDs as $id)
-     {
-          //trying to query the id from reports
-          if ($query->from('reports')->where("id = '$id'"))
-          {
-               $user = JFactory::getUser($id);
-               array_push($reportStudentIDs, $user);
-          }
-          else
-          {
-               $user = JFactory::getUser($id);
-               array_push($noReportStudentIDs, $user);
-          }
+	$reportStudentIDs = [];
+     $numStudentReports = [];
+     foreach ($weekReports as $report) {
+     array_push($reportStudentIDs, $report[1]);
+
+     $data = json_decode($report[0], true);
+     $numReports = count($data) / 4;
+     array_push($numStudentReports, $numReports);
      }
+
+     // Deduce the students who did not send reports this week
+     $noReportStudentIDs = array_diff($allStudentsIDs, $reportStudentIDs);
 
      $rows = '';
      foreach ($noReportStudentIDs as $id)
      {
-          $user = JFactory::getUser($id);
+          $user = Factory::getUser($id);
           $rows .= '<tr>';
           $rows .= '<td>' . $user->name . '</td>';
           $rows .= '<td>' . $user->get('email') . '</td>';
@@ -56,9 +54,9 @@
      if(isset($_POST['button_pressed']))
      {
           $content = 'This email is from the UCF Programming Team. This is a reminder to send in you weekly report.';
-          foreach ($noReportStudentIDs as $id) 
+          foreach ($noReportStudentIDs as $noReportStudentID) 
           {
-               $user = JFactory::getUser($id);
+               $user = Factory::getUser($noReportStudentID);
                $to = $user->get('email');
                $schedule->call(function () {
                     mail($to, 'UCF Programming Team Report', $content);
