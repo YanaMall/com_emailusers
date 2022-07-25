@@ -76,16 +76,17 @@
 </style>
 
 <div class="displayStudents">
-     <h2>Students who have not completed this week's report.</h2>
+     <h2>Students who have not submit a report this week</h2>
+     <h4>Reminder emails are sent automatically each Saturday</h4>
 </div>
 <table class="table">
      <tr>
-     <th>Name</th>
-     <th>Email</th>
+          <th>Name</th>
+          <th>Email</th>
      </tr>
      <?php echo $rows; ?>
 </table>
 <form action="" method="post">
-    <input type="submit" value="Send out emails about reports" />
+    <input class="btn btn-primary" type="submit" value="Send out emails about reports" />
     <input type="hidden" name="button_pressed" value="1" />
 </form>
