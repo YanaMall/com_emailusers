@@ -14,7 +14,7 @@
      // No direct access to this file
      defined('_JEXEC') or die( 'Restricted access' );
      
-     $weekStart = date_create()->modify('this Monday')->format('Y-m-d');
+     $weekStart = date_create()->modify('Monday this week')->format('Y-m-d');
      //Trying to pull from the 'reports' table
      $db = JFactory::getDbo();
      $query = $db->getQuery(true);
