@@ -15,41 +15,25 @@
      defined('_JEXEC') or die( 'Restricted access' );
      
      $weekStart = date_create()->modify('Monday this week')->format('Y-m-d');
-     //Trying to pull from the 'reports' table
+     $sendDate = date_create()->modify('Saturday this week')->format('Y-m-d');
+     $today = date("Y-m-d");
+
+     //Pull from the 'reports' data table
      $db = JFactory::getDbo();
      $query = $db->getQuery(true);
      $query->select(array('data', 'id'))->from('reports')->where("weekStart = '$weekStart'");
      $db->setQuery($query);
      $weekReports = $db->loadRowList();
 
-     //Returns all the ids belonging to the group name input
-     function getGroupId($groupName){
-          $db = JFactory::getDBO();
-          $db->setQuery($db->getQuery(true)
-          ->select('*')
-          ->from("#__usergroups")
-          );
-          $groups = $db->loadRowList();
-          foreach ($groups as $group) {
-          if ($group[4] == $groupName) // $group[4] holds the name of current group
-               return $group[0]; // $group[0] holds group ID
-          }
-          return false;
-     }
- 
-     // Get all student ids
-     $group_id = getGroupId('Student');
+     // Get all student ids (Group 11)
+     $group_id = 11;
      $access = new JAccess();
      $allStudentsIDs = $access->getUsersByGroup($group_id);
 
-	$reportStudentIDs = [];
-     $numStudentReports = [];
-     foreach ($weekReports as $report) {
-     array_push($reportStudentIDs, $report[1]);
-
-     $data = json_decode($report[0], true);
-     $numReports = count($data) / 4;
-     array_push($numStudentReports, $numReports);
+     $reportStudentIDs = [];
+     foreach ($weekReports as $report) 
+     {
+          array_push($reportStudentIDs, $report[1]);
      }
 
      // Deduce the students who did not send reports this week
@@ -64,7 +48,6 @@
           $rows .= '<td>' . $user->get('email') . '</td>';
           $rows .= '</tr>';
      }
-     //no names showing in the table
 
      if(isset($_POST['button_pressed']))
      {
@@ -73,14 +56,21 @@
           {
                $user = Factory::getUser($noReportStudentID);
                $to = $user->get('email');
-               $schedule->call(function () {
-                    mail($to, 'UCF Programming Team Report', $content);
-               })->cron('00 12 * * sat');
+               mail($to, 'UCF Programming Team Report', $content);
           }
           echo 'Email Sent.';
      }
-     //scheduled for every Saturday at 12:00:00
-     //$schedule->call(sendEmails())->cron('00 12 * * sat');
+
+     if($today == $sendDate)
+     {
+          $content = 'This email is from the UCF Programming Team. This is a reminder to send in you weekly report.';
+          foreach ($noReportStudentIDs as $noReportStudentID) 
+          {
+               $user = Factory::getUser($noReportStudentID);
+               $to = $user->get('email');
+               mail($to, 'UCF Programming Team Report', $content);
+          }
+     }
 ?>
 
 <style>
@@ -91,8 +81,8 @@
 </style>
 
 <div class="displayStudents">
-     <h2>Students who have not submit a report this week</h2>
-     <h4>Reminder emails are sent automatically each Saturday</h4>
+     <h2>Students who have not submitted a report this week</h2>
+     <h4>Reminder emails are sent automatically each Saturday at 12am</h4>
 </div>
 <table class="table">
      <tr>
