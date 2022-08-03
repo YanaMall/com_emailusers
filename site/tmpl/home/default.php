@@ -22,8 +22,23 @@
      $db->setQuery($query);
      $weekReports = $db->loadRowList();
 
-	 // Get all student ids (Group 11)
-	$group_id = 11;
+     //Returns all the ids belonging to the group name input
+     function getGroupId($groupName){
+          $db = JFactory::getDBO();
+          $db->setQuery($db->getQuery(true)
+          ->select('*')
+          ->from("#__usergroups")
+          );
+          $groups = $db->loadRowList();
+          foreach ($groups as $group) {
+          if ($group[4] == $groupName) // $group[4] holds the name of current group
+               return $group[0]; // $group[0] holds group ID
+          }
+          return false;
+     }
+ 
+     // Get all student ids
+     $group_id = getGroupId('Student');
      $access = new JAccess();
      $allStudentsIDs = $access->getUsersByGroup($group_id);
 
